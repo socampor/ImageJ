@@ -558,46 +558,47 @@ public class ByteProcessor extends ImageProcessor {
         }
     }
     
-    private int caseMin(int p1, int p2, int p3, int p4, int p5, int p6, int p7, int p8, int p9) {
-    	int sum = p5;
-        if (p1<sum) sum = p1;
-        if (p2<sum) sum = p2;
-        if (p3<sum) sum = p3;
-        if (p4<sum) sum = p4;
-        if (p6<sum) sum = p6;
-        if (p7<sum) sum = p7;
-        if (p8<sum) sum = p8;
-        if (p9<sum) sum = p9;
+    private int caseMin(ArrayList<Integer> array) {
+    	int sum = array.get(4);
+        if (array.get(0)<sum) sum = array.get(0);
+        if (array.get(1)<sum) sum = array.get(1);
+        if (array.get(2)<sum) sum = array.get(2);
+        if (array.get(3)<sum) sum = array.get(3);
+        if (array.get(5)<sum) sum = array.get(5);
+        if (array.get(6)<sum) sum = array.get(6);
+        if (array.get(7)<sum) sum = array.get(7);
+        if (array.get(8)<sum) sum = array.get(8);
     	return sum;
     }
     
-    private int caseMax(int p1, int p2, int p3, int p4, int p5, int p6, int p7, int p8, int p9) {
-    	int sum = p5;
-    	if (p1>sum) sum = p1;
-        if (p2>sum) sum = p2;
-        if (p3>sum) sum = p3;
-        if (p4>sum) sum = p4;
-        if (p6>sum) sum = p6;
-        if (p7>sum) sum = p7;
-        if (p8>sum) sum = p8;
-        if (p9>sum) sum = p9;
+    private int caseMax(ArrayList<Integer> array) {
+    	int sum = array.get(4);
+        if (array.get(0)>sum) sum = array.get(0);
+        if (array.get(1)>sum) sum = array.get(1);
+        if (array.get(2)>sum) sum = array.get(2);
+        if (array.get(3)>sum) sum = array.get(3);
+        if (array.get(5)>sum) sum = array.get(5);
+        if (array.get(6)>sum) sum = array.get(6);
+        if (array.get(7)>sum) sum = array.get(7);
+        if (array.get(8)>sum) sum = array.get(8);
     	return sum;
+    	
     }
     
-    private int caseError( int binaryForeground, int binaryCount, int count, int p1, int p2, int p3, int p4, int p5, int p6, int p7, int p8, int p9) {
+    private int caseError( int binaryForeground, int binaryCount, int count, ArrayList<Integer> array) {
     	int sum = 0;
-    	if (p5==binaryBackground)
+    	if (array.get(4)==binaryBackground)
 			sum = binaryBackground;
 		else {
 			count = 0;
-			if (p1==binaryBackground) count++;
-			if (p2==binaryBackground) count++;
-			if (p3==binaryBackground) count++;
-			if (p4==binaryBackground) count++;
-			if (p6==binaryBackground) count++;
-			if (p7==binaryBackground) count++;
-			if (p8==binaryBackground) count++;
-			if (p9==binaryBackground) count++;							
+			if (array.get(0)==binaryBackground) count++;
+			if (array.get(1)==binaryBackground) count++;
+			if (array.get(2)==binaryBackground) count++;
+			if (array.get(3)==binaryBackground) count++;
+			if (array.get(5)==binaryBackground) count++;
+			if (array.get(6)==binaryBackground) count++;
+			if (array.get(7)==binaryBackground) count++;
+			if (array.get(8)==binaryBackground) count++;							
 			if (count>=binaryCount)
 				sum = binaryBackground;
 			else
@@ -606,20 +607,20 @@ public class ByteProcessor extends ImageProcessor {
     	return sum;
     }
     
-    private int caseDilate( int binaryForeground, int binaryCount, int count, int p1, int p2, int p3, int p4, int p5, int p6, int p7, int p8, int p9) {
+    private int caseDilate( int binaryForeground, int binaryCount, int count, ArrayList<Integer> array) {
     	int sum = 0;
-    	if (p5==binaryForeground)
+    	if (array.get(4)==binaryForeground)
 			sum = binaryForeground;
 		else {
 			count = 0;
-			if (p1==binaryForeground) count++;
-			if (p2==binaryForeground) count++;
-			if (p3==binaryForeground) count++;
-			if (p4==binaryForeground) count++;
-			if (p6==binaryForeground) count++;
-			if (p7==binaryForeground) count++;
-			if (p8==binaryForeground) count++;
-			if (p9==binaryForeground) count++;							
+			if (array.get(0)==binaryForeground) count++;
+			if (array.get(1)==binaryForeground) count++;
+			if (array.get(2)==binaryForeground) count++;
+			if (array.get(3)==binaryForeground) count++;
+			if (array.get(5)==binaryForeground) count++;
+			if (array.get(6)==binaryForeground) count++;
+			if (array.get(7)==binaryForeground) count++;
+			if (array.get(8)==binaryForeground) count++;							
 			if (count>=binaryCount)
 				sum = binaryForeground;
 			else
@@ -683,16 +684,17 @@ public class ByteProcessor extends ImageProcessor {
 						sum = findMedian(values);
 						break;
 					case MIN:
-						sum = caseMin(p1, p2, p3, p4, p5, p6, p7, p8, p9);
+						
+						sum = caseMin(new ArrayList<Integer>(Arrays.asList(p1, p2, p3, p4, p5, p6, p7, p8, p9)));
 						break;
 					case MAX:
-						sum = caseMax(p1, p2, p3, p4, p5, p6, p7, p8, p9);
+						sum = caseMax(new ArrayList<Integer>(Arrays.asList(p1, p2, p3, p4, p5, p6, p7, p8, p9)));
 						break;
 					case ERODE:
-						sum = caseError(binaryForeground, binaryCount, count, p1, p2, p3, p4, p5, p6, p7, p8, p9);
+						sum = caseError(binaryForeground, binaryCount, count,new ArrayList<Integer>(Arrays.asList(p1, p2, p3, p4, p5, p6, p7, p8, p9)));
 						break;
 					case DILATE:
-						sum = caseDilate(binaryForeground, count, count, p1, p2, p3, p4, p5, p6, p7, p8, p9);
+						sum = caseDilate(binaryForeground, count, count, new ArrayList<Integer>(Arrays.asList(p1, p2, p3, p4, p5, p6, p7, p8, p9)));
 						break;
 				}
 				
@@ -738,16 +740,16 @@ public class ByteProcessor extends ImageProcessor {
                     if (sum> 255) sum = 255;
                     break;
                 case MIN:
-                    sum = caseMin(p1, p2, p3, p4, p5, p6, p7, p8, p9);
+                    sum = caseMin(new ArrayList<Integer>(Arrays.asList(p1, p2, p3, p4, p5, p6, p7, p8, p9)));
 										break;
                 case MAX:
-                    sum = caseMax(p1, p2, p3, p4, p5, p6, p7, p8, p9);
+                    sum = caseMax(new ArrayList<Integer>(Arrays.asList(p1, p2, p3, p4, p5, p6, p7, p8, p9)));
 										break;
 				case ERODE:
-					sum = caseError(binaryForeground, binaryCount, count, p1, p2, p3, p4, p5, p6, p7, p8, p9);
+					sum = caseError(binaryForeground, binaryCount, count,new ArrayList<Integer>(Arrays.asList(p1, p2, p3, p4, p5, p6, p7, p8, p9)));
 					break;
 				case DILATE:
-					sum = caseDilate(binaryForeground, count, count, p1, p2, p3, p4, p5, p6, p7, p8, p9);
+					sum = caseDilate(binaryForeground, count, count, new ArrayList<Integer>(Arrays.asList(p1, p2, p3, p4, p5, p6, p7, p8, p9)));
 					break;
             }
             pixels[x+y*width] = (byte)sum;
