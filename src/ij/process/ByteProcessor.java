@@ -269,15 +269,15 @@ public class ByteProcessor extends ImageProcessor {
 
 	/** Uses the current interpolation method (BILINEAR or BICUBIC) 
 		to calculate the pixel value at real coordinates (x,y). */
-	public double getInterpolatedPixel(double x, double y) {
+	public double getInterpolatedPixel(double axeX, double axeY) {
 		if (interpolationMethod==BICUBIC)
-			return getBicubicInterpolatedPixel(x, y, this);
+			return getBicubicInterpolatedPixel(axeX, axeY, this);
 		else {
-			if (x<0.0) x = 0.0;
-			if (x>=width-1.0) x = width-1.001;
-			if (y<0.0) y = 0.0;
-			if (y>=height-1.0) y = height-1.001;
-			return getInterpolatedPixel(x, y, pixels);
+			if (axeX<0.0) axeX = 0.0;
+			if (axeX>=width-1.0) axeX = width-1.001;
+			if (axeY<0.0) axeY = 0.0;
+			if (axeY>=height-1.0) axeY = height-1.001;
+			return getInterpolatedPixel(axeX, axeY, pixels);
 		}
 	}
 
