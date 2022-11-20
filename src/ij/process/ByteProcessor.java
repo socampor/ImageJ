@@ -1304,4 +1304,3 @@ public class ByteProcessor extends ImageProcessor {
 	}
 
 }
-
