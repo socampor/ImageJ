@@ -585,12 +585,12 @@ public class ByteProcessor extends ImageProcessor {
     	
     }
     
-    private int caseError( int binaryForeground, int binaryCount, int count, ArrayList<Integer> array) {
+    private int caseError( int binaryForeground, int binaryCount, ArrayList<Integer> array) {
     	int sum = 0;
     	if (array.get(4)==binaryBackground)
 			sum = binaryBackground;
 		else {
-			count = 0;
+			int count = 0;
 			if (array.get(0)==binaryBackground) count++;
 			if (array.get(1)==binaryBackground) count++;
 			if (array.get(2)==binaryBackground) count++;
@@ -607,12 +607,12 @@ public class ByteProcessor extends ImageProcessor {
     	return sum;
     }
     
-    private int caseDilate( int binaryForeground, int binaryCount, int count, ArrayList<Integer> array) {
+    private int caseDilate( int binaryForeground, int binaryCount, ArrayList<Integer> array) {
     	int sum = 0;
     	if (array.get(4)==binaryForeground)
 			sum = binaryForeground;
 		else {
-			count = 0;
+			int count = 0;
 			if (array.get(0)==binaryForeground) count++;
 			if (array.get(1)==binaryForeground) count++;
 			if (array.get(2)==binaryForeground) count++;
@@ -691,10 +691,10 @@ public class ByteProcessor extends ImageProcessor {
 						sum = caseMax(new ArrayList<Integer>(Arrays.asList(p1, p2, p3, p4, p5, p6, p7, p8, p9)));
 						break;
 					case ERODE:
-						sum = caseError(binaryForeground, binaryCount, count,new ArrayList<Integer>(Arrays.asList(p1, p2, p3, p4, p5, p6, p7, p8, p9)));
+						sum = caseError(binaryForeground, binaryCount,new ArrayList<Integer>(Arrays.asList(p1, p2, p3, p4, p5, p6, p7, p8, p9)));
 						break;
 					case DILATE:
-						sum = caseDilate(binaryForeground, count, count, new ArrayList<Integer>(Arrays.asList(p1, p2, p3, p4, p5, p6, p7, p8, p9)));
+						sum = caseDilate(binaryForeground, binaryCount, new ArrayList<Integer>(Arrays.asList(p1, p2, p3, p4, p5, p6, p7, p8, p9)));
 						break;
 				}
 				
@@ -746,10 +746,10 @@ public class ByteProcessor extends ImageProcessor {
                     sum = caseMax(new ArrayList<Integer>(Arrays.asList(p1, p2, p3, p4, p5, p6, p7, p8, p9)));
 										break;
 				case ERODE:
-					sum = caseError(binaryForeground, binaryCount, count,new ArrayList<Integer>(Arrays.asList(p1, p2, p3, p4, p5, p6, p7, p8, p9)));
+					sum = caseError(binaryForeground, binaryCount,new ArrayList<Integer>(Arrays.asList(p1, p2, p3, p4, p5, p6, p7, p8, p9)));
 					break;
 				case DILATE:
-					sum = caseDilate(binaryForeground, count, count, new ArrayList<Integer>(Arrays.asList(p1, p2, p3, p4, p5, p6, p7, p8, p9)));
+					sum = caseDilate(binaryForeground, binaryCount, new ArrayList<Integer>(Arrays.asList(p1, p2, p3, p4, p5, p6, p7, p8, p9)));
 					break;
             }
             pixels[x+y*width] = (byte)sum;
