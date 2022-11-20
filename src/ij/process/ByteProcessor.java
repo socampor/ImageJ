@@ -3,6 +3,7 @@ package ij.process;
 import java.util.*;
 import java.awt.*;
 import java.awt.image.*;
+import ij.gui.*;
 import ij.Prefs;
 
 /**
@@ -189,7 +190,20 @@ public class ByteProcessor extends ImageProcessor {
 
 	/** Restore pixels that are within roi but not part of mask. */
 	public void reset(ImageProcessor mask) {
-		fill();
+		if (mask==null || snapshotPixels==null)
+			return;	
+		if (mask.getWidth()!=roiWidth||mask.getHeight()!=roiHeight)
+			throw new IllegalArgumentException(maskSizeError(mask));
+		byte[] mpixels = (byte[])mask.getPixels();
+		for (int y=roiY, my=0; y<(roiY+roiHeight); y++, my++) {
+			int i = y * width + roiX;
+			int mi = my * roiWidth;
+			for (int x=roiX; x<(roiX+roiWidth); x++) {
+				if (mpixels[mi++]==0)
+					pixels[i] = snapshotPixels[i];
+				i++;
+			}
+		}
 	}
 
 	public void setSnapshotPixels(Object pixels) {
@@ -269,15 +283,15 @@ public class ByteProcessor extends ImageProcessor {
 
 	/** Uses the current interpolation method (BILINEAR or BICUBIC) 
 		to calculate the pixel value at real coordinates (x,y). */
-	public double getInterpolatedPixel(double axeX, double axeY) {
+	public double getInterpolatedPixel(double x, double y) {
 		if (interpolationMethod==BICUBIC)
-			return getBicubicInterpolatedPixel(axeX, axeY, this);
+			return getBicubicInterpolatedPixel(x, y, this);
 		else {
-			if (axeX<0.0) axeX = 0.0;
-			if (axeX>=width-1.0) axeX = width-1.001;
-			if (axeY<0.0) axeY = 0.0;
-			if (axeY>=height-1.0) axeY = height-1.001;
-			return getInterpolatedPixel(axeX, axeY, pixels);
+			if (x<0.0) x = 0.0;
+			if (x>=width-1.0) x = width-1.001;
+			if (y<0.0) y = 0.0;
+			if (y>=height-1.0) y = height-1.001;
+			return getInterpolatedPixel(x, y, pixels);
 		}
 	}
 
@@ -543,56 +557,7 @@ public class ByteProcessor extends ImageProcessor {
 			}
         }
     }
-    
-    private int caseMin(ArrayList<Integer> array) {
-    	int sum = array.get(4);
-        if (array.get(0)<sum) sum = array.get(0);
-        if (array.get(1)<sum) sum = array.get(1);
-        if (array.get(2)<sum) sum = array.get(2);
-        if (array.get(3)<sum) sum = array.get(3);
-        if (array.get(5)<sum) sum = array.get(5);
-        if (array.get(6)<sum) sum = array.get(6);
-        if (array.get(7)<sum) sum = array.get(7);
-        if (array.get(8)<sum) sum = array.get(8);
-    	return sum;
-    }
-    
-    private int caseMax(ArrayList<Integer> array) {
-    	int sum = array.get(4);
-        if (array.get(0)>sum) sum = array.get(0);
-        if (array.get(1)>sum) sum = array.get(1);
-        if (array.get(2)>sum) sum = array.get(2);
-        if (array.get(3)>sum) sum = array.get(3);
-        if (array.get(5)>sum) sum = array.get(5);
-        if (array.get(6)>sum) sum = array.get(6);
-        if (array.get(7)>sum) sum = array.get(7);
-        if (array.get(8)>sum) sum = array.get(8);
-    	return sum;
-    	
-    }
-    
-    private int caseDefault( int binaryForeground, int binaryCount, ArrayList<Integer> array) {
-    	int sum = 0;
-    	if (array.get(4)==binaryBackground)
-			sum = binaryBackground;
-		else {
-			int count = 0;
-			if (array.get(0)==binaryBackground) count++;
-			if (array.get(1)==binaryBackground) count++;
-			if (array.get(2)==binaryBackground) count++;
-			if (array.get(3)==binaryBackground) count++;
-			if (array.get(5)==binaryBackground) count++;
-			if (array.get(6)==binaryBackground) count++;
-			if (array.get(7)==binaryBackground) count++;
-			if (array.get(8)==binaryBackground) count++;							
-			if (count>=binaryCount)
-				sum = binaryBackground;
-			else
-			sum = binaryForeground;
-		}
-    	return sum;
-    }
-    
+
 	/** Filters using a 3x3 neighborhood. The p1, p2, etc variables, which
 		contain the values of the pixels in the neighborhood, are arranged
 		as follows:
@@ -613,6 +578,7 @@ public class ByteProcessor extends ImageProcessor {
         int[] values = new int[10];
         if (type==MEDIAN_FILTER) values = new int[10];
         int rowOffset = width;
+        int count;
         int binaryForeground = 255 - binaryBackground;
 		for (int y=yMin; y<=yMax; y++) {
 			offset = xMin + y * width;
@@ -647,17 +613,64 @@ public class ByteProcessor extends ImageProcessor {
 						sum = findMedian(values);
 						break;
 					case MIN:
-						
-						sum = caseMin(new ArrayList<Integer>(Arrays.asList(p1, p2, p3, p4, p5, p6, p7, p8, p9)));
+						sum = p5;
+						if (p1<sum) sum = p1;
+						if (p2<sum) sum = p2;
+						if (p3<sum) sum = p3;
+						if (p4<sum) sum = p4;
+						if (p6<sum) sum = p6;
+						if (p7<sum) sum = p7;
+						if (p8<sum) sum = p8;
+						if (p9<sum) sum = p9;
 						break;
 					case MAX:
-						sum = caseMax(new ArrayList<Integer>(Arrays.asList(p1, p2, p3, p4, p5, p6, p7, p8, p9)));
+						sum = p5;
+						if (p1>sum) sum = p1;
+						if (p2>sum) sum = p2;
+						if (p3>sum) sum = p3;
+						if (p4>sum) sum = p4;
+						if (p6>sum) sum = p6;
+						if (p7>sum) sum = p7;
+						if (p8>sum) sum = p8;
+						if (p9>sum) sum = p9;
 						break;
 					case ERODE:
-						sum = caseDefault(binaryForeground, binaryCount,new ArrayList<Integer>(Arrays.asList(p1, p2, p3, p4, p5, p6, p7, p8, p9)));
+						if (p5==binaryBackground)
+							sum = binaryBackground;
+						else {
+							count = 0;
+							if (p1==binaryBackground) count++;
+							if (p2==binaryBackground) count++;
+							if (p3==binaryBackground) count++;
+							if (p4==binaryBackground) count++;
+							if (p6==binaryBackground) count++;
+							if (p7==binaryBackground) count++;
+							if (p8==binaryBackground) count++;
+							if (p9==binaryBackground) count++;							
+							if (count>=binaryCount)
+								sum = binaryBackground;
+							else
+							sum = binaryForeground;
+						}
 						break;
 					case DILATE:
-						sum = caseDefault(binaryForeground, binaryCount, new ArrayList<Integer>(Arrays.asList(p1, p2, p3, p4, p5, p6, p7, p8, p9)));
+						if (p5==binaryForeground)
+							sum = binaryForeground;
+						else {
+							count = 0;
+							if (p1==binaryForeground) count++;
+							if (p2==binaryForeground) count++;
+							if (p3==binaryForeground) count++;
+							if (p4==binaryForeground) count++;
+							if (p6==binaryForeground) count++;
+							if (p7==binaryForeground) count++;
+							if (p8==binaryForeground) count++;
+							if (p9==binaryForeground) count++;							
+							if (count>=binaryCount)
+								sum = binaryForeground;
+							else
+								sum = binaryBackground;
+						}
 						break;
 				}
 				
@@ -673,6 +686,7 @@ public class ByteProcessor extends ImageProcessor {
 	void filterEdge(int type, byte[] pixels2, int n, int x, int y, int xinc, int yinc) {
 		int p1, p2, p3, p4, p5, p6, p7, p8, p9;
         int sum=0, sum1, sum2;
+        int count;
         int binaryForeground = 255 - binaryBackground;
 		int bg = binaryBackground;
 		int fg = binaryForeground;
@@ -702,16 +716,64 @@ public class ByteProcessor extends ImageProcessor {
                     if (sum> 255) sum = 255;
                     break;
                 case MIN:
-                    sum = caseMin(new ArrayList<Integer>(Arrays.asList(p1, p2, p3, p4, p5, p6, p7, p8, p9)));
-										break;
+                    sum = p5;
+                    if (p1<sum) sum = p1;
+                    if (p2<sum) sum = p2;
+                    if (p3<sum) sum = p3;
+                    if (p4<sum) sum = p4;
+                    if (p6<sum) sum = p6;
+                    if (p7<sum) sum = p7;
+                    if (p8<sum) sum = p8;
+                    if (p9<sum) sum = p9;
+                    break;
                 case MAX:
-                    sum = caseMax(new ArrayList<Integer>(Arrays.asList(p1, p2, p3, p4, p5, p6, p7, p8, p9)));
-										break;
+                    sum = p5;
+                    if (p1>sum) sum = p1;
+                    if (p2>sum) sum = p2;
+                    if (p3>sum) sum = p3;
+                    if (p4>sum) sum = p4;
+                    if (p6>sum) sum = p6;
+                    if (p7>sum) sum = p7;
+                    if (p8>sum) sum = p8;
+                    if (p9>sum) sum = p9;
+                    break;
 				case ERODE:
-					sum = caseDefault(binaryForeground, binaryCount,new ArrayList<Integer>(Arrays.asList(p1, p2, p3, p4, p5, p6, p7, p8, p9)));
+					if (p5==binaryBackground)
+						sum = binaryBackground;
+					else {
+						count = 0;
+						if (p1==binaryBackground) count++;
+						if (p2==binaryBackground) count++;
+						if (p3==binaryBackground) count++;
+						if (p4==binaryBackground) count++;
+						if (p6==binaryBackground) count++;
+						if (p7==binaryBackground) count++;
+						if (p8==binaryBackground) count++;
+						if (p9==binaryBackground) count++;							
+						if (count>=binaryCount)
+							sum = binaryBackground;
+						else
+						sum = binaryForeground;
+					}
 					break;
 				case DILATE:
-					sum = caseDefault(binaryForeground, binaryCount, new ArrayList<Integer>(Arrays.asList(p1, p2, p3, p4, p5, p6, p7, p8, p9)));
+					if (p5==binaryForeground)
+						sum = binaryForeground;
+					else {
+						count = 0;
+						if (p1==binaryForeground) count++;
+						if (p2==binaryForeground) count++;
+						if (p3==binaryForeground) count++;
+						if (p4==binaryForeground) count++;
+						if (p6==binaryForeground) count++;
+						if (p7==binaryForeground) count++;
+						if (p8==binaryForeground) count++;
+						if (p9==binaryForeground) count++;							
+						if (count>=binaryCount)
+							sum = binaryForeground;
+						else
+							sum = binaryBackground;
+					}
 					break;
             }
             pixels[x+y*width] = (byte)sum;
@@ -1242,4 +1304,3 @@ public class ByteProcessor extends ImageProcessor {
 	}
 
 }
-
